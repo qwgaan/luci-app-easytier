@@ -8,7 +8,7 @@ include $(TOPDIR)/rules.mk
 -include $(dir $(lastword $(MAKEFILE_LIST)))../version.mk
 
 PKG_VERSION:=$(or $(EASYTIER_VERSION),2.7.0)
-PKG_RELEASE:=1
+PKG_RELEASE:=2
 
 PKG_PO_VERSION:=$(PKG_VERSION)
 
@@ -44,9 +44,9 @@ define Package/$(PKG_NAME)/postinst
 chmod +x /etc/init.d/easytier
 chmod +x /usr/bin/et_route_guard.sh 2>/dev/null
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	grep -q et_route_guard /etc/crontabs/root 2>/dev/null || echo '* * * * * sh /usr/bin/et_route_guard.sh >/dev/null 2>&1' >> /etc/crontabs/root
+	grep -q et_route_guard /etc/crontabs/root 2>/dev/null || echo '*/3 * * * * sh /usr/bin/et_route_guard.sh >/dev/null 2>&1' >> /etc/crontabs/root
 	/etc/init.d/cron reload >/dev/null 2>&1
-	echo "EasyTier 路由守卫已启用：每分钟核对 tun0 路由，日志 /var/log/et_route_guard.log"
+	echo "EasyTier 路由守卫已启用：每 3 分钟核对 tun0 路由，日志 /var/log/et_route_guard.log"
 fi
 if [ -f /tmp/easytier_backup ] ; then
   echo "发现luci备份配置文件/tmp/easytier_backup，开始恢复到/etc/config/easytier"

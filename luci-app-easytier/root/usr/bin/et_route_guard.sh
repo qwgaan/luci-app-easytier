@@ -14,7 +14,7 @@
 # 用法：
 #   sh et_route_guard.sh          # 正常执行一次
 #   DRYRUN=1 sh et_route_guard.sh # 只打印将要做什么，不落地
-# 定时：crontab 每分钟一次即可（脚本本身幂等，无异常时只写一行状态变化日志）
+# 定时：crontab 每 3 分钟一次（脚本幂等，无异常时只写一行状态变化日志）
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 TUN="${TUN:-tun0}"                     # EasyTier 虚拟网卡名
