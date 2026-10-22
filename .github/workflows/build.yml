@@ -72,9 +72,11 @@ jobs:
           key: sdk-${{ matrix.arch }}-${{ matrix.sdk }}
           
       - name: Create i18n uci-defaults file
+        # 文件名不要用 luci-i18n-easytier-zh-cn：luci.mk 会给 i18n 子包装同名文件，
+        # 两个包都带同一个路径 → 每次升级都要求 --force-overwrite。改名后只由 luci-app 包提供。
         run: |
           mkdir -p luci-app-easytier/root/etc/uci-defaults
-          cat > luci-app-easytier/root/etc/uci-defaults/luci-i18n-easytier-zh-cn << 'EOF'
+          cat > luci-app-easytier/root/etc/uci-defaults/99-luci-easytier-zh-cn << 'EOF'
           #!/bin/sh
           uci -q batch << EOI
           set luci.languages.zh_cn='简体中文 (Simplified Chinese)'
@@ -83,7 +85,7 @@ jobs:
           rm -f /tmp/luci-indexcache /tmp/luci-modulecache/*
           exit 0
           EOF
-          chmod +x luci-app-easytier/root/etc/uci-defaults/luci-i18n-easytier-zh-cn
+          chmod +x luci-app-easytier/root/etc/uci-defaults/99-luci-easytier-zh-cn
           
       - name: Pin version into package Makefiles
         run: |

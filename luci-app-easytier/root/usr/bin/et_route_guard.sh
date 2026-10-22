@@ -53,7 +53,8 @@ expected=$(printf '%s\n' "$json" | awk -F'"' '
 	/"next_hop_hostname"/   { if ($4 != "Local" && pc != "") print pc }
 ' | tr ',' '\n' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/[0-9]+$' | grep -v '^0\.0\.0\.0/0$' | sort -u)
 
-[ -z "$expected" ] && exit 0
+# 注意：即使 $expected 为空（对端全部离线）也不能提前退出 ——
+# 下面的 STATE 快照和 tun 自身网段看护与对端是否在线无关。
 
 # ---- 内核实际挂在 tun0 上的网段 ----
 kernel=$(ip route | awk -v d="$TUN" '{
