@@ -1,7 +1,9 @@
 name: Build-OpenWrt-EasyTier
 
 on:
-  #push:
+  # 需要重新出包时，往 ci/build 分支推一个提交即可（见 README / 升级与分发指南）
+  push:
+    branches: ['ci/build']
   workflow_dispatch:
     inputs:
       tag:
