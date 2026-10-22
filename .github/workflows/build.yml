@@ -85,6 +85,18 @@ jobs:
           EOF
           chmod +x luci-app-easytier/root/etc/uci-defaults/luci-i18n-easytier-zh-cn
           
+      - name: Pin version into package Makefiles
+        run: |
+          # src-link feed 下 `-include ../version.mk` 取不到（/feed 是仓库根，包目录被 symlink 到 package/feeds/xxx/），
+          # 且 MAKEFLAGS 不会传进 SDK 容器，所以这里把 version.mk 的值钉进各 Makefile 的兜底默认值。
+          V="$(awk -F= '/^EASYTIER_VERSION=/{print $2}' version.mk)"
+          [ -n "$V" ] || { echo 'version.mk 缺少 EASYTIER_VERSION'; exit 1; }
+          for f in easytier/Makefile easytier-noweb/Makefile luci-app-easytier/Makefile; do
+            sed -i "s/,2\.7\.0)/,${V})/" "$f"
+            grep -q ",${V})" "$f" || { echo "!! $f 的 PKG_VERSION 未能钉成 ${V}"; exit 1; }
+            grep -n '^PKG_VERSION' "$f"
+          done
+
       - name: Building packages
         uses: openwrt/gh-action-sdk@main
         env:
