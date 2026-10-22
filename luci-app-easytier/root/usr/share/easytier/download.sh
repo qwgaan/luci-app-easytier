@@ -29,20 +29,20 @@ get_latest_version() {
 	
 	if [ -z "$curltest" ] || [ ! -s "$(which curl)" ]; then
 		tag=$(wget --no-check-certificate -T 5 -t 3 --user-agent "$user_agent" --max-redirect=0 --output-document=- \
-			https://api.github.com/repos/EasyTier/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
+			https://api.github.com/repos/qwgaan/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
 		[ -z "$tag" ] && tag=$(wget --no-check-certificate -T 5 -t 3 --user-agent "$user_agent" --quiet --output-document=- \
-			https://api.github.com/repos/EasyTier/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
+			https://api.github.com/repos/qwgaan/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
 	else
 		tag=$(curl -k --connect-timeout 3 --user-agent "$user_agent" \
-			https://api.github.com/repos/EasyTier/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
+			https://api.github.com/repos/qwgaan/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
 		[ -z "$tag" ] && tag=$(curl -Lk --connect-timeout 3 --user-agent "$user_agent" -s \
-			https://api.github.com/repos/EasyTier/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
+			https://api.github.com/repos/qwgaan/EasyTier/releases/latest 2>&1 | grep 'tag_name' | cut -d\" -f4)
 	fi
 	
 	# 如果获取失败，从 UCI 配置或使用默认版本
 	if [ -z "$tag" ]; then
 		tag=$(uci -q get easytier.@easytier[0].fallback_version)
-		[ -z "$tag" ] && tag="v2.7.0"
+		[ -z "$tag" ] && tag="v2.7.0-fix1"
 	fi
 	
 	echo "$tag"
@@ -55,7 +55,7 @@ download_binary() {
 	local cpucore="$2"
 	local path="$3"
 	local proxys=$(get_proxy_list)
-	local download_url="https://github.com/EasyTier/EasyTier/releases/download/${tag}/easytier-linux-${cpucore}-${tag}.zip"
+	local download_url="https://github.com/qwgaan/EasyTier/releases/download/${tag}/easytier-linux-${cpucore}-${tag}.zip"
 	
 	mkdir -p "$path"
 	
