@@ -14,8 +14,7 @@
 # 用法：
 #   sh et_route_guard.sh          # 正常执行一次
 #   DRYRUN=1 sh et_route_guard.sh # 只打印将要做什么，不落地
-# 定时：由 luci-app-easytier 的 postinst 自动注册 crontab（每分钟一次），
-#       脚本幂等：无异常时不产生动作，只在状态变化时落一行快照。
+# 定时：crontab 每分钟一次即可（脚本本身幂等，无异常时只写一行状态变化日志）
 
 PATH=/usr/sbin:/usr/bin:/sbin:/bin
 TUN="${TUN:-tun0}"                     # EasyTier 虚拟网卡名
@@ -23,7 +22,8 @@ RPC="${RPC:-127.0.0.1:15888}"          # core 的 RPC portal
 METRIC="${METRIC:-65535}"              # 与 EasyTier 自己安装路由时的 metric 保持一致
 LOG="${LOG:-/var/log/et_route_guard.log}"
 STATE="${STATE:-/tmp/et_route_guard.state}"   # 记录上次观测到的内核状态签名（用于抓触发时刻）
-MAXLOG=300
+MAXLOG=300                             # 最多保留行数
+MAXBYTES=131072                        # 最多保留字节数（128KB）；STATE 行很长时按字节兜底
 DRYRUN="${DRYRUN:-0}"
 
 log() {
@@ -31,6 +31,10 @@ log() {
 	n=$(wc -l <"$LOG" 2>/dev/null)
 	if [ "${n:-0}" -gt "$MAXLOG" ]; then
 		tail -n "$MAXLOG" "$LOG" >"$LOG.tmp" 2>/dev/null && mv "$LOG.tmp" "$LOG"
+	fi
+	b=$(wc -c <"$LOG" 2>/dev/null)
+	if [ "${b:-0}" -gt "$MAXBYTES" ]; then
+		tail -n 100 "$LOG" >"$LOG.tmp" 2>/dev/null && mv "$LOG.tmp" "$LOG"
 	fi
 }
 
