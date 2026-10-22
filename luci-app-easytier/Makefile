@@ -8,7 +8,10 @@ include $(TOPDIR)/rules.mk
 -include $(dir $(lastword $(MAKEFILE_LIST)))../version.mk
 
 PKG_VERSION:=$(or $(EASYTIER_VERSION),2.7.0)
+# 注意：openwrt-22.03 的 luci.mk 用 PKG_VERSION 作为 ipk 的 Version 字段（忽略 PKG_RELEASE），
+# 所以打包修订号必须并进 PKG_VERSION，opkg 才会把它当成比 2.7.0-fix1 更新的版本。
 PKG_RELEASE:=2
+PKG_VERSION:=$(PKG_VERSION)-r2
 
 PKG_PO_VERSION:=$(PKG_VERSION)
 
@@ -44,7 +47,9 @@ define Package/$(PKG_NAME)/postinst
 chmod +x /etc/init.d/easytier
 chmod +x /usr/bin/et_route_guard.sh 2>/dev/null
 if [ -z "$${IPKG_INSTROOT}" ]; then
-	grep -q et_route_guard /etc/crontabs/root 2>/dev/null || echo '*/3 * * * * sh /usr/bin/et_route_guard.sh >/dev/null 2>&1' >> /etc/crontabs/root
+	# 先删掉可能存在的旧行（1 分钟版/手工版），再写 3 分钟版，保证升级后计划任务被归一化
+	sed -i '/et_route_guard/d' /etc/crontabs/root 2>/dev/null
+	echo '*/3 * * * * sh /usr/bin/et_route_guard.sh >/dev/null 2>&1' >> /etc/crontabs/root
 	/etc/init.d/cron reload >/dev/null 2>&1
 	echo "EasyTier 路由守卫已启用：每 3 分钟核对 tun0 路由，日志 /var/log/et_route_guard.log"
 fi
