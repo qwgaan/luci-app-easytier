@@ -10,8 +10,8 @@ include $(TOPDIR)/rules.mk
 PKG_VERSION:=$(or $(EASYTIER_VERSION),2.7.0)
 # 注意：openwrt-22.03 的 luci.mk 用 PKG_VERSION 作为 ipk 的 Version 字段（忽略 PKG_RELEASE），
 # 所以打包修订号必须并进 PKG_VERSION，opkg 才会把它当成比 2.7.0-fix1 更新的版本。
-PKG_RELEASE:=2
-PKG_VERSION:=$(PKG_VERSION)-r2
+PKG_RELEASE:=3
+PKG_VERSION:=$(PKG_VERSION)-r3
 
 PKG_PO_VERSION:=$(PKG_VERSION)
 
